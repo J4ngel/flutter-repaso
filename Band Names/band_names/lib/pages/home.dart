@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:band_names/models/band.dart';
+import 'package:pie_chart/pie_chart.dart';
 import 'package:provider/provider.dart';
 
 import '../services/socket_service.dart';
@@ -26,13 +27,15 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     final socketService = Provider.of<SocketService>(context, listen: false);
 
-    socketService.socket.on('active-bands', (payload) {
-      print(payload);
-      this.bands = (payload as List).map((band) => Band.fromMap(band)).toList();
-      setState(() {});
-    });
+    socketService.socket.on('active-bands', _handleActiveBands);
 
     super.initState();
+  }
+
+  _handleActiveBands(dynamic payload) {
+    print(payload);
+    this.bands = (payload as List).map((band) => Band.fromMap(band)).toList();
+    setState(() {});
   }
 
   @override
@@ -63,10 +66,17 @@ class _HomePageState extends State<HomePage> {
           )
         ],
       ),
-      body: ListView.builder(
-          itemCount: bands.length,
-          itemBuilder: (BuildContext context, int index) =>
-              _bandTile(bands[index])),
+      body: Column(
+        children: [
+          _showGraphic(),
+          Expanded(
+            child: ListView.builder(
+                itemCount: bands.length,
+                itemBuilder: (BuildContext context, int index) =>
+                    _bandTile(bands[index])),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add), elevation: 2.5, onPressed: addNewBand),
     );
@@ -187,5 +197,25 @@ class _HomePageState extends State<HomePage> {
     }
 
     Navigator.pop(context);
+  }
+
+  Widget _showGraphic() {
+    Map<String, double> dataMap = new Map();
+
+    bands.forEach((band) {
+      dataMap.putIfAbsent(band.name!, () => band.votes!.toDouble());
+    });
+
+    //Revisar la documentación de PieChart para configurarla mas bonita
+    return Container(
+        padding: EdgeInsets.only(top: 10),
+        width: double.infinity,
+        height: 200,
+        child: PieChart(
+          dataMap: dataMap,
+          chartType: ChartType.ring,
+          chartValuesOptions: ChartValuesOptions(decimalPlaces: 0),
+          legendOptions: LegendOptions(legendPosition: LegendPosition.left),
+        ));
   }
 }
