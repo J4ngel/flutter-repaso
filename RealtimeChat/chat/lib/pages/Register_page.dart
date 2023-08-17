@@ -1,6 +1,9 @@
 import 'package:chat/widgets/btn_azul.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../helpers/mostrar_alerta.dart';
+import '../services/auth_service.dart';
 import '../widgets/custom_input.dart';
 import '../widgets/labels.dart';
 import '../widgets/logo.dart';
@@ -53,6 +56,7 @@ class __FormState extends State<_Form> {
 
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
     return Container(
       margin: EdgeInsets.only(top: 40),
       padding: EdgeInsets.symmetric(horizontal: 50),
@@ -78,11 +82,26 @@ class __FormState extends State<_Form> {
           ),
           BotonAzul(
               text: 'Sing in!',
-              onPressed: () {
-                print(nameCtrl.text);
-                print(emailCtrl.text);
-                print(passCtrl.text);
-              })
+              onPressed: authService.creando
+                  ? null
+                  : () async {
+                      // print(nameCtrl.text);
+                      // print(emailCtrl.text);
+                      // print(passCtrl.text);
+                      FocusScope.of(context).unfocus();
+                      final registroOk = await authService.register(
+                          nameCtrl.text.trim(),
+                          emailCtrl.text.trim(),
+                          passCtrl.text.trim());
+                      if (registroOk == 'ok') {
+                        //Navegar
+                        Navigator.restorablePushReplacementNamed(
+                            context, 'users');
+                      } else {
+                        mostraAlerta(
+                            context, 'Registro incorrecto', registroOk);
+                      }
+                    })
         ],
       ),
     );
