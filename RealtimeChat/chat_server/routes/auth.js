@@ -1,6 +1,6 @@
 /*
 
-path: api/logi
+path: api/login
 
 */
 

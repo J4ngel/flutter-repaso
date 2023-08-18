@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../helpers/mostrar_alerta.dart';
 import '../services/auth_service.dart';
+import '../services/socket_service.dart';
 import '../widgets/custom_input.dart';
 import '../widgets/labels.dart';
 import '../widgets/logo.dart';
@@ -57,6 +58,8 @@ class __FormState extends State<_Form> {
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
+    final socketService = Provider.of<SocketService>(context);
+
     return Container(
       margin: EdgeInsets.only(top: 40),
       padding: EdgeInsets.symmetric(horizontal: 50),
@@ -94,6 +97,7 @@ class __FormState extends State<_Form> {
                           emailCtrl.text.trim(),
                           passCtrl.text.trim());
                       if (registroOk == 'ok') {
+                        socketService.connect();
                         //Navegar
                         Navigator.restorablePushReplacementNamed(
                             context, 'users');

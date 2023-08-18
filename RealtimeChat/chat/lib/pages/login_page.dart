@@ -1,5 +1,6 @@
 import 'package:chat/helpers/mostrar_alerta.dart';
 import 'package:chat/services/auth_service.dart';
+import 'package:chat/services/socket_service.dart';
 import 'package:chat/widgets/btn_azul.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -56,6 +57,8 @@ class __FormState extends State<_Form> {
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
+    final socketService = Provider.of<SocketService>(context);
+
     return Container(
       margin: EdgeInsets.only(top: 40),
       padding: EdgeInsets.symmetric(horizontal: 50),
@@ -85,6 +88,8 @@ class __FormState extends State<_Form> {
                       final loginOk = await authService.login(
                           emailCtrl.text.trim(), passCtrl.text.trim());
                       if (loginOk) {
+                        //conectar al socket service:
+                        socketService.connect();
                         //Navegar
                         Navigator.restorablePushReplacementNamed(
                             context, 'users');
